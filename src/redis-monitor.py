@@ -323,7 +323,6 @@ if __name__ == '__main__':
 						required = False)
 
 	parser.add_argument('--log',
-						type = string,
 						help = "special log file path(only used for daemon mode)",
 						required = False)
 	
