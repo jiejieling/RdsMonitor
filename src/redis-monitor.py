@@ -1,16 +1,16 @@
 #! /usr/bin/env python
 #-*-coding:utf8-*-
 
-from api.util import settings
+import os, sys, time, datetime
+from api.util.settings import settings
 from dataprovider.dataprovider import RedisLiveDataProvider
 from threading import Timer
-import redis
-import datetime
+import redis 
 import threading
 import traceback
 import argparse
-import time
 
+DEBUG = os.environ.get('RdsMonitor_DEBUG', 0)
 
 class Monitor(object):
 	"""Monitors a given Redis server using the MONITOR command.
@@ -188,13 +188,26 @@ class InfoThread(threading.Thread):
 		"""Does all the work.
 		"""
 		stats_provider = RedisLiveDataProvider.get_provider()
-		redis_client = redis.StrictRedis(host=self.server, port=self.port, db=0,
-										password=self.password)
-
+		if not stats_provider:
+			print >>sys.stderr, 'Get data provider error'
+			sys.exit(4)
+	
+		try:
+			redis_client = redis.StrictRedis(host=self.server, port=self.port, db=0,
+											password=self.password)
+		except Exception, e:
+			print >>sys.stderr, 'Connect to Redis %s:%i err: %s'%(self.server, self.port, e)
+			sys.exit(3)
+	
 		# process the results from redis
+		num = 10
 		while not self.stopped():
-			try:
+			if num >= self.interval:
+				num = 1
 				redis_info = redis_client.info()
+				if DEBUG:
+					print 'Get Redis %s:%i info:%s'%(self.server, self.port, redis_info)
+					
 				current_time = datetime.datetime.now()
 				used_memory = int(redis_info['used_memory'])
 
@@ -204,50 +217,44 @@ class InfoThread(threading.Thread):
 				except:
 					peak_memory = used_memory
 
-				stats_provider.save_memory_info(self.id, current_time, 
-												used_memory, peak_memory)
-				stats_provider.save_info_command(self.id, current_time, 
-												 redis_info)
+				if not stats_provider.save_memory_info(self.id, current_time, 
+												used_memory, peak_memory):
+					print >>sys.stderr, 'Save memory error'
+					
+				if not stats_provider.save_info_command(self.id, current_time, 
+												 redis_info):
+					print >>sys.stderr, 'Save info error'
 
-				# databases=[]
-				# for key in sorted(redis_info.keys()):
-				#	 if key.startswith("db"):
-				#		 database = redis_info[key]
-				#		 database['name']=key
-				#		 databases.append(database)
-
-				# expires=0
-				# persists=0
-				# for database in databases:
-				#	 expires+=database.get("expires")
-				#	 persists+=database.get("keys")-database.get("expires")
-
-				# stats_provider.SaveKeysInfo(self.id, current_time, expires, persists)
-
-				time.sleep(self.interval)
-
-			except Exception, e:
-				tb = traceback.format_exc()
-				print "==============================\n"
-				print datetime.datetime.now()
-				print tb
-				print "==============================\n"
-
+			else:
+				num += 1
+			
+			time.sleep(1)
+		
+		if self.stopped():
+			print 'Recv stop signal, exit...'
+			
 class RedisMonitor(object):
 	def __init__(self):
 		self.threads = []
 		self.active = True
 
-	def run(self, duration, interval):
+	def run(self, config, duration, interval):
 		"""Monitors all redis servers defined in the config for a certain number
 		of seconds.
 
 		Args:
 			duration (int): The number of seconds to monitor for.
 		"""
-		
-		redis_servers = settings.get_redis_servers()
 
+		#init settings
+		settings.filename = config
+		settings.config = settings().get_settings()
+		
+		redis_servers = settings().get_redis_servers()
+		if not redis_servers:
+			print >>sys.stderr, "Configure error"
+			sys.exit(2)
+	
 		for redis_server in redis_servers:
 			redis_password = redis_server.get("password", '')
 			'''
@@ -268,10 +275,15 @@ class RedisMonitor(object):
 		try:
 			while self.active:
 				time.sleep(1)
-		except (KeyboardInterrupt, SystemExit):
+		except KeyboardInterrupt:
+			print >>sys.stderr, "Recv Ctrl+C, process will exit..."
 			self.stop()
-			t.cancel()
-
+			if duration:
+				t.cancel()
+		
+		while threading.active_count() > 1:
+			time.sleep(1)
+			
 	def stop(self):
 		"""Stops the monitor and all associated threads.
 		"""
@@ -307,13 +319,13 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Monitor redis.')
 	parser.add_argument('--duration',
 						type = int,
-						help = "duration to run the monitor command (in seconds)",
+						help = "duration to run the monitor command (in seconds), default 0",
 						required = False,
 						default = 0)
 
 	parser.add_argument('--interval',
 						type = int,
-						help = "interval to run the monitor command (in seconds)",
+						help = "interval to run the monitor command (in seconds) default 10",
 						required = False,
 						default = 10)
 
@@ -327,17 +339,34 @@ if __name__ == '__main__':
 						required = False)
 
 	parser.add_argument('-f',
+						metavar = 'CONFIG',
 						help = "special config file(default ./redis-live.conf)",
 						required = False,
-						deafult = 'redis-live.conf')
+						default = 'redis-live.conf')
+
+	parser.add_argument('-d',
+						action = 'store_true',
+						help = "Open Debug mode",
+						required = False)	
 		
 	args = parser.parse_args()
+
+	if args.d:
+		os.environ['RdsMonitor_DEBUG'] = '1'
+		DEBUG = 1
+	
+	if DEBUG:
+		print 'Get argv:'
+		for argv, v in args._get_kwargs():
+			print '%-10s:%-20s'%(argv, v)
+			
 	if not os.path.exists(args.f):
-		print >>sys.stderr, "Config file %s not found"%args.f
+		print >>sys.stderr, "Config file %s not found. \nPlease use %s -f to special config file"%(args.f, sys.argv[0])
 		sys.exit(1)
+
 
 	if args.daemon:
 		daemon(args.log if args.log else '/dev/null')
 	
 	monitor = RedisMonitor()
-	monitor.run(args.duration, args.interval)
+	monitor.run(args.f, args.duration, args.interval)
