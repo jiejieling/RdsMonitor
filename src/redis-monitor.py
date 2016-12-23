@@ -245,8 +245,8 @@ class RedisMonitor(object):
 		Args:
 			duration (int): The number of seconds to monitor for.
 		"""
+		
 		redis_servers = settings.get_redis_servers()
-
 
 		for redis_server in redis_servers:
 			redis_password = redis_server.get("password", '')
@@ -325,8 +325,17 @@ if __name__ == '__main__':
 	parser.add_argument('--log',
 						help = "special log file path(only used for daemon mode)",
 						required = False)
-	
+
+	parser.add_argument('-f',
+						help = "special config file(default ./redis-live.conf)",
+						required = False,
+						deafult = 'redis-live.conf')
+		
 	args = parser.parse_args()
+	if not os.path.exists(args.f):
+		print >>sys.stderr, "Config file %s not found"%args.f
+		sys.exit(1)
+
 	if args.daemon:
 		daemon(args.log if args.log else '/dev/null')
 	
