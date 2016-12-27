@@ -142,7 +142,6 @@ class RedisStatsProvider(object):
 			# eval feels like it could be wrong/dangerous... but that's just a
 			# feeling.
 			row = ast.literal_eval(row)
-			parts = []
 
 			# convert the timestamp
 			timestamp = datetime.fromtimestamp(int(row['timestamp']))
