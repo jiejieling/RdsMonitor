@@ -14,23 +14,30 @@ from api.controller.CommandsController import CommandsController
 from api.controller.TopCommandsController import TopCommandsController
 from api.controller.TopKeysController import TopKeysController
 
+from api.util.settings import settings
+
 if __name__ == "__main__":
-    define("port", default=8888, help="run on the given port", type=int)
-    define("debug", default=0, help="debug mode", type=int)
-    tornado.options.parse_command_line()
+	define("port", default=8888, help="run on the given port", type=int)
+	define("debug", default=0, help="debug mode", type=int)
+	define("conf", default='redis-live.conf', help="configure file")
+	tornado.options.parse_command_line()
 
-    # Bootup
-    handlers = [
-    (r"/api/servers", ServerListController),
-    (r"/api/info", InfoController),
-    (r"/api/memory", MemoryController),
-    (r"/api/commands", CommandsController),
-    (r"/api/topcommands", TopCommandsController),
-    (r"/api/topkeys", TopKeysController),
-    (r"/(.*)", BaseStaticFileHandler, {"path": "www"})
-    ]
+	#init settings
+	settings.filename = options.conf
+	settings.config = settings().get_settings()
+	
+	# Bootup
+	handlers = [
+	(r"/api/servers", ServerListController),
+	(r"/api/info", InfoController),
+	(r"/api/memory", MemoryController),
+	(r"/api/commands", CommandsController),
+	(r"/api/topcommands", TopCommandsController),
+	(r"/api/topkeys", TopKeysController),
+	(r"/(.*)", BaseStaticFileHandler, {"path": "www"})
+	]
 
-    server_settings = {'debug': options.debug}
-    application = tornado.web.Application(handlers, **server_settings)
-    application.listen(options.port)
-    tornado.ioloop.IOLoop.instance().start()
+	server_settings = {'debug': options.debug}
+	application = tornado.web.Application(handlers, **server_settings)
+	application.listen(options.port)
+	tornado.ioloop.IOLoop.instance().start()
