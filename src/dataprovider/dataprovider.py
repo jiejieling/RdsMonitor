@@ -25,5 +25,5 @@ class RedisLiveDataProvider(object):
 			return sqliteprovider.RedisStatsProvider()
 		else:
 			if self.DEBUG:
-				print >> sys.stderr, 'Data store type %s is invalid, type only support in (redis, sqlite)'
+				print >> sys.stderr, 'Data store type %s is invalid, type only support in (redis, sqlite)'%data_store_type
 			return ''

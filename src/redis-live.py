@@ -25,18 +25,18 @@ if __name__ == "__main__":
 	#init settings
 	settings.filename = options.conf
 	settings.config = settings().get_settings()
-	
+
 	# Bootup
 	handlers = [
-	(r"/api/servers", ServerListController),
-	(r"/api/info", InfoController),
-	(r"/api/memory", MemoryController),
-	(r"/api/commands", CommandsController),
-	(r"/api/topcommands", TopCommandsController),
-	(r"/api/topkeys", TopKeysController),
-	(r"/(.+)", BaseStaticFileHandler, {"path": "www"}),
-	(r"/", IndexController)
-	]
+					(r"/api/servers", ServerListController),
+					(r"/api/info", InfoController),
+					(r"/api/memory", MemoryController),
+					(r"/api/commands", CommandsController),
+					(r"/api/topcommands", TopCommandsController),
+					(r"/api/topkeys", TopKeysController),
+					(r"/(.+)", BaseStaticFileHandler, {"path": "www"}),
+					(r"/", IndexController)
+				]
 
 	server_settings = {'debug': options.debug}
 	application = tornado.web.Application(handlers, **server_settings)
