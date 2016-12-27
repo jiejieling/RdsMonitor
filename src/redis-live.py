@@ -6,7 +6,7 @@ from tornado.options import define, options
 import tornado.web
 
 from api.controller.BaseStaticFileHandler import BaseStaticFileHandler
-
+from api.controller.IndexController import IndexController
 from api.controller.ServerListController import ServerListController
 from api.controller.InfoController import InfoController
 from api.controller.MemoryController import MemoryController
@@ -34,7 +34,8 @@ if __name__ == "__main__":
 	(r"/api/commands", CommandsController),
 	(r"/api/topcommands", TopCommandsController),
 	(r"/api/topkeys", TopKeysController),
-	(r"/(.*)", BaseStaticFileHandler, {"path": "www"})
+	(r"/(.+)", BaseStaticFileHandler, {"path": "www"}),
+	(r"/", IndexController)
 	]
 
 	server_settings = {'debug': options.debug}
