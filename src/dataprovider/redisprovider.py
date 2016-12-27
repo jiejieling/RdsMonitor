@@ -5,12 +5,13 @@ import redis
 import json
 import ast
 
-DEBUG = os.environ.get('RdsMonitor_DEBUG', 0)
+
 
 class RedisStatsProvider(object):
 	"""A Redis based persistance to store and fetch stats"""
 
 	def __init__(self):
+		self.DEBUG = os.environ.get('RdsMonitor_DEBUG', 0)
 		# redis server to use to store stats
 		stats_server = settings.settings().get_redis_stats_server()
 		self.server = stats_server["server"]
@@ -34,7 +35,7 @@ class RedisStatsProvider(object):
 			self.conn.zadd(server + ":memory", str(timeutils.convert_to_epoch(timestamp)), data)
 			return True
 		except Exception, e:
-			if DEBUG:
+			if self.DEBUG:
 				print >>sys.stderr, 'Connect to stats redis %s:%i err:%e'%(self.server, self.port, e)
 			
 			return False
@@ -51,7 +52,7 @@ class RedisStatsProvider(object):
 			self.conn.set(server + ":Info", json.dumps(info))
 			return True
 		except Exception, e:
-			if DEBUG:
+			if self.DEBUG:
 				print >>sys.stderr, 'Connect to stats redis %s:%i err:%e'%(self.server, self.port, e)
 			
 			return False

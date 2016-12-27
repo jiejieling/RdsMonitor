@@ -4,13 +4,14 @@ import contextlib
 import sqlite3
 import json
 
-DEBUG = os.environ.get('RdsMonitor_DEBUG', 0)
+
 
 class RedisStatsProvider(object):
 	"""A Sqlite based persistance to store and fetch stats
 	"""
 
 	def __init__(self):
+		self.DEBUG = os.environ.get('RdsMonitor_DEBUG', 0)
 		stats = settings.settings().get_sqlite_stats_store()
 		self.location = stats.get('path', 'db/redislive.dat')
 		self.retries = 10
@@ -32,7 +33,7 @@ class RedisStatsProvider(object):
 			self._retry_query(query, values)
 			return True
 		except Exception, e:
-			if DEBUG:
+			if self.DEBUG:
 				print >>sys.stderr, 'Connect to sqlite %s err:%s'%(self.location, e)
 			return False
 		
@@ -51,7 +52,7 @@ class RedisStatsProvider(object):
 			self._retry_query(query, values)
 			return True
 		except Exception, e:
-			if DEBUG:
+			if self.DEBUG:
 				print >>sys.stderr, 'Connect to sqlite %s err:%s'%(self.location, e)
 			return False
 		

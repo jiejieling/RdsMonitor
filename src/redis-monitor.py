@@ -50,7 +50,7 @@ class InfoThread(threading.Thread):
 	def run(self):
 		"""Does all the work.
 		"""
-		stats_provider = RedisLiveDataProvider.get_provider()
+		stats_provider = RedisLiveDataProvider().get_provider()
 		if not stats_provider:
 			print >>sys.stderr, 'Get data provider error'
 			sys.exit(4)
