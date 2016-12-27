@@ -26,16 +26,24 @@ class settings(object):
 				return {}
 
 	def get_redis_servers(self):		
+		if DEBUG:
+			print sys.stderr, "get_redis_servers config:%s"%self.config
 		return self.config.get("RedisServers", '')
 	
 	
 	def get_redis_stats_server(self):
+		if DEBUG:
+			print sys.stderr, "get_redis_stats_server config:%s"%self.config
 		return self.config.get("RedisStatsServer", '')
 	
 	
 	def get_data_store_type(self):
+		if DEBUG:
+			print sys.stderr, "get_redis_stats_server config:%s"%self.config
 		return self.config.get("DataStoreType", '')
 	
 	
 	def get_sqlite_stats_store(self):
+		if DEBUG:
+			print sys.stderr, "get_redis_stats_server config:%s"%self.config
 		return self.config.get("SqliteStatsStore", '')
