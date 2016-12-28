@@ -96,9 +96,8 @@
   
   <script type="text/javascript" src="js/models/info-widget-model.js"></script>
   <script type="text/javascript" src="js/views/info-widget-view.js"></script>
-  <script type="text/javascript" src="js/views/info-widget-view2-master.js"></script>
-  <script type="text/javascript" src="js/views/info-widget-view2-slave.js"></script>
-  
+  <script type="text/javascript" src="js/views/info-widget-view2.js"></script>
+
   <script type="text/javascript" src="js/models/memory-widget-model.js"></script>
   <script type="text/javascript" src="js/views/memory-widget-view.js"></script>
   
@@ -238,7 +237,7 @@
               <div class="info-box">
                 <center>
                   <p>Master Info</p>
-                  <p class="well-value">{{connected_slaves}}</p>
+                  <p class="well-value">{{master_host}}:{{master_port}}</p>
                 </center>
               </div>
             </td>
