@@ -11,7 +11,7 @@ var InfoWidget = BaseWidget.extend({
     this.updateFrequency = 5000 // every 5 seconds
         
     // templates
-    var templateSource        = $("#info-widget-template").html()
+    var templateSource        = $("#info-widget-template1").html()
       , popOverTemplateSource = $("#popover-template").html()
       , infoTemplateSource    = $("#info-template").html() 
 
