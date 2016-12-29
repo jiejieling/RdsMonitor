@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import os, sys
 import tornado.ioloop
 import tornado.options
 from tornado.options import define, options
@@ -16,11 +17,38 @@ from api.controller.TopKeysController import TopKeysController
 
 from api.util.settings import settings
 
+def daemon():
+	os.umask(0)
+	
+	pid = os.fork()        
+	if pid > 0:
+		sys.exit(0)
+	
+	os.setsid()
+	pid = os.fork()
+	if pid > 0:
+		sys.exit(0)
+	
+	for i in range(1024):
+		try:
+			os.close(i)
+		except:
+			continue
+	
+	sys.stdin = open("/dev/null", "w+")
+	sys.stdout = sys.stdin
+	sys.stderr = sys.stdout
+
 if __name__ == "__main__":
-	define("port", default=8888, help="run on the given port", type=int)
-	define("debug", default=0, help="debug mode", type=int)
-	define("conf", default='redis-live.conf', help="configure file")
+	define("port", default = 8888, help = "run on the given port", type = int)
+	define("debug", default = 0, help = "debug mode", type = int)
+	define("conf", default = 'redis-live.conf', help = "configure file")
+	define("daemon", default = 0, help = "daemon mode", type = int)
 	tornado.options.parse_command_line()
+
+	#Enter daemon mode
+	if options.daemon:
+		daemon()
 
 	#init settings
 	settings.filename = options.conf
