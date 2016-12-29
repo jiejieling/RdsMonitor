@@ -8,7 +8,7 @@ var InfoWidget = BaseWidget.extend({
     this.Name = "Info Widget"
 
     this.init()
-    this.updateFrequency = 5000 // every 5 seconds
+    //this.updateFrequency = 10 // every 5 seconds
         
     // templates
     var templateSource        = $("#info-widget-template1").html()

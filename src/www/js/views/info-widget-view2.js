@@ -8,7 +8,7 @@ var InfoWidget2 = BaseWidget.extend({
     this.Name = "Info Widget2"
 
     this.init()
-    this.updateFrequency = 5000 // every 5 seconds
+    //this.updateFrequency = 5000 // every 5 seconds
         
     var slaveTemplateSource   = $("#slave-template").html()
     this.slaveTemplate  = Handlebars.compile(slaveTemplateSource)

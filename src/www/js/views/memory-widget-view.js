@@ -43,7 +43,7 @@ var MemoryWidget = BaseWidget.extend({
         , options = {
                       title : ''
                     , colors: [ '#1581AA', '#77BA44' ]                    
-                    , pointSize: pointSize 
+                    , pointSize: pointSize
                     , chartArea: { 'top' : 10, 'width' : '85%' }
                     , width : "100%"
                     , height : 200
