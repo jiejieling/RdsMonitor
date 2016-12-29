@@ -55,19 +55,21 @@ class InfoThread(threading.Thread):
 			print >>sys.stderr, 'Get data provider error'
 			sys.exit(4)
 	
-		try:
-			redis_client = redis.StrictRedis(host=self.server, port=self.port, db=0,
-											password=self.password)
-		except Exception, e:
-			print >>sys.stderr, 'Connect to Redis %s:%i err: %s'%(self.server, self.port, e)
-			sys.exit(3)
+		redis_client = redis.StrictRedis(host=self.server, port=self.port, db=0,
+										password=self.password)
 	
 		# process the results from redis
 		num = 10
 		while not self.stopped():
 			if num >= self.interval:
 				num = 1
-				redis_info = redis_client.info()
+				
+				try:
+					redis_info = redis_client.info()
+				except Exception, e:
+					print >>sys.stderr, 'Connect to Redis %s:%i err: %s'%(self.server, self.port, e)
+					sys.exit(3)
+
 				if DEBUG:
 					print 'Get Redis %s:%i info:%s'%(self.server, self.port, redis_info)
 					
@@ -120,6 +122,10 @@ class RedisMonitor(object):
 	
 		for redis_server in redis_servers:
 			redis_password = redis_server.get("password", '')
+			if "" in (redis_server.get("server", ""), redis_server.get("port", ""), redis_server.get("name", "")):
+				print >>sys.stderr, "Configure invalid. RedisServers must configure the [server], [port], [name]"
+				sys.exit(2)
+			
 			'''
 			monitor = MonitorThread(redis_server["server"], redis_server["port"], redis_password)
 			self.threads.append(monitor)
