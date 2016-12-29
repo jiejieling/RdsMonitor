@@ -14,7 +14,7 @@ var CommandsWidget = BaseWidget.extend({
       this.$el.empty().html(this.template())
 
       // chart
-      this.chart = new google.visualization.AreaChart($("#commands-widget-chart").empty().get(0))
+      this.chart = new google.visualization.LineChart($("#commands-widget-chart").empty().get(0))
       this.dataTable = new google.visualization.DataTable()
       this.dataTable.addColumn('datetime', 'datetime')
       this.dataTable.addColumn('number', 'Commands Processed')      
@@ -29,13 +29,15 @@ var CommandsWidget = BaseWidget.extend({
       self.dataTable.removeRows(0,self.dataTable.getNumberOfRows())
             
       $.each(model.data, function(index, obj){          
-          
-          // first item of the object contains datetime info
-          // [ YYYY, MM, DD, HH, MM, SS ]
-          var recordDate = new Date(obj[0][0], obj[0][1]-1, obj[0][2], obj[0][3], obj[0][4], obj[0][5])
+          // obj[0] = timestamp
+    	  // obj[1] = commands, it's a increasing number
+    	  if(index == 0)
+    		  return true
+    		  
+          var recordDate = new Date(obj[0] * 1000)
           
           if(self.dataTable)
-            self.dataTable.addRow( [recordDate, obj[1]] )        
+            self.dataTable.addRow( [recordDate, obj[1] - model.data[index - 1][1]] )
       })
      
       var pointSize = model.data.length > 120 ? 1 : 5

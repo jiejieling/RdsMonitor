@@ -28,15 +28,33 @@ class RedisStatsProvider(object):
 			peak (int): Peak memory value.
 		"""
 		query = "INSERT INTO memory VALUES (?, ?, ?, ?);"
-		values = (timestamp.strftime('%Y-%m-%d %H:%M:%S'), used, peak, server)
+		values = (timestamp, used, peak, server)
 		try:
 			self._retry_query(query, values)
 			return True
 		except Exception, e:
 			if self.DEBUG:
-				print >>sys.stderr, 'Connect to sqlite %s err:%s'%(self.location, e)
+				print >>sys.stderr, 'Save memory info [server = %s] to sqlite %s err:%s'%(server, self.location, e)
 			return False
-		
+
+	def save_command_info(self, server, timestamp, total_command):
+		"""Saves process stats,
+
+		Args:
+			server (str): The server ID
+			timestamp (datetime): The time of the info.
+			total_command (int): total command value.
+		"""
+		query = "INSERT INTO command VALUES (?, ?, ?);"
+		values = (timestamp, total_command, server)
+		try:
+			self._retry_query(query, values)
+			return True
+		except Exception, e:
+			if self.DEBUG:
+				print >>sys.stderr, 'Save command info [server = %s] to sqlite %s err:%s'%(server, self.location, e)
+			return False
+				
 	def save_info_command(self, server, timestamp, info):
 		"""Save Redis info command dump
 
@@ -46,39 +64,15 @@ class RedisStatsProvider(object):
 			info (dict): The result of a Redis INFO command.
 		"""
 		query = "INSERT INTO info VALUES (?, ?, ?);"
-		values = (timestamp.strftime('%Y-%m-%d %H:%M:%S'), json.dumps(info),
+		values = (timestamp, json.dumps(info),
 				  server)
 		try:
 			self._retry_query(query, values)
 			return True
 		except Exception, e:
 			if self.DEBUG:
-				print >>sys.stderr, 'Connect to sqlite %s err:%s'%(self.location, e)
+				print >>sys.stderr, 'Save info command [server = %s] to sqlite %s err:%s'%(server, self.location, e)
 			return False
-		
-	def save_monitor_command(self, server, timestamp, command, keyname,
-							 argument):
-		"""save information about every command
-
-		Args:
-			server (str): Server ID
-			timestamp (datetime): Timestamp.
-			command (str): The Redis command used.
-			keyname (str): The key the command acted on.
-			argument (str): The args sent to the command.
-		"""
-		# FIXME: why clear the argument here?
-		argument = ""
-
-		query = "INSERT INTO monitor "
-		query += "(datetime, command, keyname, arguments, server) "
-		query += "VALUES "
-		query += "(?, ?, ?, ?, ?);"
-
-		values = (timestamp.strftime('%Y-%m-%d %H:%M:%S'), command, keyname,
-				  argument, server)
-
-		self._retry_query(query, values)
 
 	def get_info(self, server):
 		"""Get info about the server
@@ -100,20 +94,19 @@ class RedisStatsProvider(object):
 			from_date (datetime): Get memory info from this date onwards.
 			to_date (datetime): Get memory info up to this date.
 		"""
-		time_fmt = '%Y-%m-%d %H:%M:%S'
-		query = """SELECT strftime('%Y-%m-%d %H:%M:%S', datetime), max, current
+
+		query = """SELECT datetime, max, current
 		FROM memory
 		WHERE datetime >= ?
 		AND datetime <= ?
 		AND server = ?;"""
 
-		values = (from_date.strftime(time_fmt), to_date.strftime(time_fmt),
-				  server)
+		values = (from_date, to_date, server)
 
 		with contextlib.closing(self.conn.cursor()) as c:
 			return [[r[0], r[1], r[2]] for r in c.execute(query, values)]
 
-	def get_command_stats(self, server, from_date, to_date, group_by):
+	def get_command_stats(self, server, from_date, to_date):
 		"""Get total commands processed in the given time period
 
 		Args:
@@ -122,77 +115,17 @@ class RedisStatsProvider(object):
 			to_date (datetime): Get data to this date.
 			group_by (str): How to group the stats.
 		"""
-		time_fmt = '%Y-%m-%d %H:%M:%S'
 
-		sql = """SELECT COUNT(*) AS total, strftime('%s', datetime)
-		FROM monitor
+		query = """SELECT datetime, max, current
+		FROM command
 		WHERE datetime >= ?
 		AND datetime <= ?
-		AND server = ?
-		GROUP BY strftime('%s', datetime)
-		ORDER BY datetime DESC;"""
+		AND server = ?;"""
 
-		values = (from_date.strftime(time_fmt), to_date.strftime(time_fmt),
-				  server)
-
-		if group_by == "day":
-			query_time_fmt = '%Y-%m-%d'
-		elif group_by == "hour":
-			query_time_fmt = '%Y-%m-%d %H'
-		elif group_by=="minute":
-			query_time_fmt = '%Y-%m-%d %H:%M'
-		else:
-			query_time_fmt = '%Y-%m-%d %H:%M:%S'
-
-		query = sql % (query_time_fmt, query_time_fmt)
+		values = (from_date, to_date, server)
 
 		with contextlib.closing(self.conn.cursor()) as c:
-			mem_data = [[r[0], r[1]] for r in c.execute(query, values)]
-			return reversed(mem_data)
-
-	def get_top_commands_stats(self, server, from_date, to_date):
-		"""Get top commands processed in the given time period
-
-		Args:
-			server (str): Server ID
-			from_date (datetime): Get stats from this date.
-			to_date (datetime): Get stats to this date.
-		"""
-		time_fmt = '%Y-%m-%d %H:%M:%S'
-		query = """SELECT command, COUNT(*) AS total
-		FROM monitor
-		WHERE datetime >= ?
-		AND datetime <= ?
-		AND server = ?
-		GROUP BY command
-		ORDER BY total;"""
-		values = (from_date.strftime(time_fmt), to_date.strftime(time_fmt),
-				  server)
-
-		with contextlib.closing(self.conn.cursor()) as c:
-			return [[r[0], r[1]] for r in c.execute(query, values)]
-
-	def get_top_keys_stats(self, server, from_date, to_date):
-		"""Gets top comm processed
-
-		Args:
-			server (str): Server ID
-			from_date (datetime): Get stats from this date.
-			to_date (datetime): Get stats to this date.
-		"""
-		time_fmt = '%Y-%m-%d %H:%M:%S'
-		query = """SELECT keyname, COUNT(*) AS total
-		FROM monitor
-		WHERE datetime >= ?
-		AND datetime <= ?
-		AND server = ?
-		GROUP BY keyname ORDER BY total DESC
-		LIMIT 10;"""
-		values = (from_date.strftime(time_fmt), to_date.strftime(time_fmt),
-				  server)
-
-		with contextlib.closing(self.conn.cursor()) as c:
-			return [[r[0], r[1]] for r in c.execute(query, values)]
+			return [[r[0], r[1], r[2]] for r in c.execute(query, values)]
 
 	def _retry_query(self, query, values=None):
 		"""Run a SQLite query until it sticks or until we reach the max number

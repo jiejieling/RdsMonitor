@@ -33,7 +33,7 @@ var MemoryWidget = BaseWidget.extend({
           
           // first item of the object contains datetime info
           // [ YYYY, MM, DD, HH, MM, SS ]
-          var recordDate = new Date(obj[0][0], obj[0][1]-1, obj[0][2], obj[0][3], obj[0][4], obj[0][5])
+          var recordDate = new Date(obj[0] * 1000)
           
           if(self.dataTable)
             self.dataTable.addRow( [recordDate, obj[1], obj[2]] )        
