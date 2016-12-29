@@ -20,7 +20,7 @@ class ServerListController(BaseController):
 				server['password'] = None
 
 			server_id = "%(server)s:%(port)s" % server
-			s = dict(server=server['server'], port=server['port'], password=server['password'], id=server_id)
+			s = dict(name = server['name'], server=server['server'], port=server['port'], password=server['password'], id=server_id)
 			server_list.append(s)
 
 		return server_list

@@ -3,12 +3,14 @@
 	[ 
 		{
   			"server": "154.17.59.99",
-  			"port" : 6379
+  			"port" : 6379,
+  			"name": "master"
 		},
 		
 		{
   			"server": "localhost",
   			"port" : 6380,
+  			"name": "master",
   			"password" : "some-password"
 		}		
 	],
