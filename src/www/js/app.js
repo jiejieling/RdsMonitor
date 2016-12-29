@@ -32,7 +32,7 @@ var App = {
             el : $("#commands-widget-placeholder")
           , model : new CommandsWidgetModel()
         })        
-        
+        /*
         var topCommandsWidget = new TopCommandsWidget({            
             el : $("#top-commands-widget-placeholder")
           , model : new TopCommandsWidgetModel()
@@ -41,7 +41,8 @@ var App = {
         var topKeysWidget = new TopKeysWidget({            
             el : $("#top-keys-widget-placeholder")
           , model : new TopKeysWidgetModel()
-        })        
+        })
+        */ 
     }
 
   , RegisterPartials : function(){
