@@ -43,7 +43,7 @@ if __name__ == "__main__":
 	define("port", default = 8888, help = "run on the given port", type = int)
 	define("debug", default = 0, help = "debug mode", type = int)
 	define("conf", default = 'redis-live.conf', help = "configure file")
-	define("daemon", default = 0, help = "daemon mode", type = int)
+	define("daemon", default = 0, help = "daemon mode", type = bool)
 	tornado.options.parse_command_line()
 
 	#Enter daemon mode
