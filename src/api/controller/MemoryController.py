@@ -1,6 +1,6 @@
 from BaseController import BaseController
 import dateutil.parser
-import datetime
+import datetime, time
 
 
 class MemoryController(BaseController):
@@ -14,25 +14,26 @@ class MemoryController(BaseController):
 						   timestamp=datetime.datetime.now().isoformat())
 
 		if not from_date or not to_date:
-			end = datetime.datetime.now()
-			delta = datetime.timedelta(seconds=60)
-			start = end - delta
+			end = int(time.time())
+			start = end - int(time.time() - 60)
 		else:
-			start = dateutil.parser.parse(from_date)
-			end   = dateutil.parser.parse(to_date)
+			try:
+				time.ctime(int(from_date))
+				time.ctime(int(to_date))
+			except:
+				self.write(return_data)
+				return
+			
+			start = int(from_date)
+			end   = int(to_date)
 
-		combined_data = []
 		# TODO: These variables aren't currently used; should they be removed?
 		prev_max=0
 		prev_current=0
 		counter=0
 
 		for data in self.stats_provider.get_memory_info(server, start, end):
-			combined_data.append([data[0], data[1], data[2]])
-
-		for data in combined_data:
-			d = [self.datetime_to_list(data[0]), data[1], data[2]]
-			return_data['data'].append(d)
+			return_data['data'].append([data[0], data[1], data[2]])
 
 		self.write(return_data)
 

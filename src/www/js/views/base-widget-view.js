@@ -39,8 +39,8 @@ var BaseWidget = Backbone.View.extend({
     this.model.fetch({
         data : {
           // if no from/to are found, provide reasonable defaults of a week ago and now, respectively
-          from : this.$el.find('[name=from]').val() || new Date(new Date() - 7*24*60*60000).toUTCString()
-        , to : this.$el.find('[name=to]').val() || new Date().toUTCString()
+          from : this.$el.find('[name=from]').val() || parseInt(new Date(new Date() - 7*24*60*60000).getTime() / 1000)
+        , to : this.$el.find('[name=to]').val() || parseInt(new Date().getTime() / 1000)
         , server : this.server
       }
     })
@@ -110,52 +110,39 @@ var BaseWidget = Backbone.View.extend({
         .siblings(".date-control")
         .css("display","none")      
 
-      var endDate = new Date()
+      var endDate = parseInt(new Date().getTime() / 1000)
         , startDate = endDate          
 
       switch(selectionType) {
 
         case 'minute' : 
-          startDate = new Date(endDate - timeFrame * 60000)
+          startDate = parseInt(new Date(endDate - timeFrame * 60000).getTime() / 1000)
           break
                        
         case 'hour' :  
-          startDate = new Date(endDate - timeFrame * 60*60000)
+          startDate = parseInt(new Date(endDate - timeFrame * 60*60000).getTime() / 1000)
           break
 
         case 'day' :  
-          startDate = new Date(endDate - timeFrame * 24*60*60000)
+          startDate = parseInt(new Date(endDate - timeFrame * 24*60*60000).getTime() / 1000)
           break
 
         case 'week' :  
-          startDate = new Date(endDate - timeFrame * 7*24*60*60000)
+          startDate = parseInt(new Date(endDate - timeFrame * 7*24*60*60000).getTime() / 1000)
           break
 
         case 'month' :  
-          startDate = new Date(endDate - timeFrame * 30*24*60*60000)
+          startDate = parseInt(new Date(endDate - timeFrame * 30*24*60*60000).getTime() / 1000)
           break
       }
 
-      this.$el.find('[name=from]').val(this.ISODateString(startDate))
-      this.$el.find('[name=to]').val(this.ISODateString(endDate))              
+      this.$el.find('[name=from]').val(startDate)
+      this.$el.find('[name=to]').val(endDate)              
       this.UpdateModel(false)
 
     }
   }
 
-, ISODateString : function ( d ) {
-
-    function pad ( n ) {
-      return n < 10 ? '0'+n : n
-    }
-    
-    return d.getFullYear()+'-'
-         + pad(d.getMonth()+1)+'-'
-         + pad(d.getDate())+' '
-         + pad(d.getHours())+':'
-         + pad(d.getMinutes())+':'
-         + pad(d.getSeconds())
-  }
 
 , error: function ( model, error ) {
    if (this.enableLogging)

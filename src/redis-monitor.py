@@ -73,7 +73,7 @@ class InfoThread(threading.Thread):
 				if DEBUG:
 					print 'Get Redis %s:%i info:%s'%(self.server, self.port, redis_info)
 					
-				current_time = datetime.datetime.now()
+				current_time = int(time.time())
 				used_memory = int(redis_info['used_memory'])
 
 				# used_memory_peak not available in older versions of redis
@@ -85,6 +85,10 @@ class InfoThread(threading.Thread):
 				if not stats_provider.save_memory_info(self.id, current_time, 
 												used_memory, peak_memory):
 					print >>sys.stderr, 'Save memory error'
+
+				if not stats_provider.save_command_info(self.id, current_time, 
+												redis_info.get('total_commands_processed', 0)):
+					print >>sys.stderr, 'Save commands error'
 					
 				if not stats_provider.save_info_command(self.id, current_time, 
 												 redis_info):
