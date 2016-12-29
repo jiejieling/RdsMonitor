@@ -1,8 +1,8 @@
 var BaseWidget = Backbone.View.extend({
 
-  enableLogging : false
+  enableLogging : true
 
-, updateFrequency : 5000
+, updateFrequency : 10000
 
 , Name : "BaseWidget"
 

@@ -1,30 +1,48 @@
-from __future__ import with_statement
-import json
+#!/usr/bin/evn python
+#-*-coding:utf8 -*-
+
+
+import os, sys, json
 
 class settings(object):
-	def __init__(self, filename):
-		self.file = filename
-		self.get_settings()
+	filename = ''
+	config = {}
+	
+	def __init__(self):
+		self.DEBUG = os.environ.get('RdsMonitor_DEBUG', 0)
 		
 	def get_settings(self):
-	    """Parses the settings from redis-live.conf.
-	    """
-	    # TODO: Consider YAML. Human writable, machine readable.
-	    with open(self.filename) as config:
-	        self.config = json.load(config)
-	
-	
-	def get_redis_servers(self):
-	    return self.config["RedisServers"]
+		"""Parses the settings from redis-live.conf.
+		"""
+
+		# TODO: Consider YAML. Human writable, machine readable.
+		with open(self.filename) as fp:
+			try:
+				return json.load(fp)
+			except Exception, e:
+				if self.DEBUG:
+					print >>sys.stderr, 'get_settings exception:', e
+				return {}
+
+	def get_redis_servers(self):		
+		if self.DEBUG:
+			print >>sys.stderr, "get_redis_servers config:%s"%self.config
+		return self.config.get("RedisServers", '')
 	
 	
 	def get_redis_stats_server(self):
-	    return self.config["RedisStatsServer"]
+		if self.DEBUG:
+			print >>sys.stderr, "get_redis_stats_server config:%s"%self.config
+		return self.config.get("RedisStatsServer", '')
 	
 	
 	def get_data_store_type(self):
-	    return self.config["DataStoreType"]
+		if self.DEBUG:
+			print >>sys.stderr, "get_redis_stats_server config:%s"%self.config
+		return self.config.get("DataStoreType", '')
 	
 	
 	def get_sqlite_stats_store(self):
-	    return self.config["SqliteStatsStore"]
+		if self.DEBUG:
+			print >>sys.stderr, "get_redis_stats_server config:%s"%self.config
+		return self.config.get("SqliteStatsStore", '')

@@ -13,8 +13,13 @@ var App = {
           , model : new ServerListModel()
         })
 
-        var infoWidget = new InfoWidget({            
-            el : $("#info-widget-placeholder")
+        var infoWidget1 = new InfoWidget({            
+            el : $("#info-widget-placeholder1")
+          , model : new InfoWidgetModel()
+        })
+
+        var infoWidget2 = new InfoWidget2({            
+            el : $("#info-widget-placeholder2")
           , model : new InfoWidgetModel()
         })
 

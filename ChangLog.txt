@@ -1,4 +1,8 @@
+2016/12/29: v0.2
+	1.	remove redis monitor supoort
+	2.	add debug mode
+	3.	RdsMonitor web recode
+
 2016/12/22:	v0.1
 	1.	add daemon mode
 	2.	optmiza CPU load
-	
