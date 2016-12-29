@@ -2,7 +2,9 @@
 	1.	remove redis monitor supoort
 	2.	add debug mode
 	3.	RdsMonitor web recode
-
+	4.	fix a exception when redis server connect error
+	5.	configure add redis server name support
+	
 2016/12/22:	v0.1
 	1.	add daemon mode
 	2.	optmiza CPU load
