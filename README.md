@@ -2,7 +2,7 @@ RdsMonitor
 ---------
 Fork from RedisLive(https://github.com/nkrode/RedisLive)
 
-![Redis Live](https://github.com/kumarnitin/RedisLive/blob/master/design/redis-live.png?raw=true "Redis Live")
+![Redis Live](https://github.com/jiejieling/RdsMonitor/blob/master/design/redis-live.png "Redis Live")
 
 Setup Instructions
 ------------------
