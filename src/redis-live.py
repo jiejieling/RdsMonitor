@@ -29,12 +29,6 @@ def daemon():
 	if pid > 0:
 		sys.exit(0)
 	
-	for i in range(1024):
-		try:
-			os.close(i)
-		except:
-			continue
-	
 	sys.stdin = open("/dev/null", "w+")
 	sys.stdout = sys.stdin
 	sys.stderr = sys.stdout
