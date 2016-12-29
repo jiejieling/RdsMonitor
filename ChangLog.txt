@@ -4,7 +4,9 @@
 	3.	RdsMonitor web recode
 	4.	fix a exception when redis server connect error
 	5.	configure add redis server name support
-	
+	6.	change request and response time format to use timestamp format, to fix timezone invalid bug
+	7.	change redis command processed's data from using redis monitor to using redis info
+	 
 2016/12/22:	v0.1
 	1.	add daemon mode
 	2.	optmiza CPU load
