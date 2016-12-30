@@ -2,7 +2,7 @@ var BaseWidget = Backbone.View.extend({
 
   enableLogging : false
 
-, updateFrequency : 10000
+, updateFrequency : 30 * 1000 //30s
 
 , Name : "BaseWidget"
 
@@ -38,8 +38,8 @@ var BaseWidget = Backbone.View.extend({
 
     this.model.fetch({
         data : {
-          // if no from/to are found, provide reasonable defaults of a week ago and now, respectively
-          from : this.$el.find('[name=from]').val() || parseInt(new Date(new Date() - 7*24*60*60000).getTime() / 1000)
+          // if no from/to are found, provide reasonable defaults of one day ago and now, respectively
+          from : this.$el.find('[name=from]').val() || parseInt(new Date(new Date() - 1 * 24 * 60 * 60).getTime())
         , to : this.$el.find('[name=to]').val() || parseInt(new Date().getTime() / 1000)
         , server : this.server
       }
@@ -116,23 +116,23 @@ var BaseWidget = Backbone.View.extend({
       switch(selectionType) {
 
         case 'minute' : 
-          startDate = parseInt(new Date(endDate - timeFrame * 60000).getTime() / 1000)
+          startDate = parseInt(new Date(endDate - timeFrame * 60).getTime())
           break
                        
         case 'hour' :  
-          startDate = parseInt(new Date(endDate - timeFrame * 60*60000).getTime() / 1000)
+          startDate = parseInt(new Date(endDate - timeFrame * 60 * 60).getTime())
           break
 
         case 'day' :  
-          startDate = parseInt(new Date(endDate - timeFrame * 24*60*60000).getTime() / 1000)
+          startDate = parseInt(new Date(endDate - timeFrame * 24 * 60 * 60).getTime())
           break
 
         case 'week' :  
-          startDate = parseInt(new Date(endDate - timeFrame * 7*24*60*60000).getTime() / 1000)
+          startDate = parseInt(new Date(endDate - timeFrame * 7 * 24 * 60 * 60).getTime())
           break
 
         case 'month' :  
-          startDate = parseInt(new Date(endDate - timeFrame * 30*24*60*60000).getTime() / 1000)
+          startDate = parseInt(new Date(endDate - timeFrame * 30 * 24 * 60 * 60).getTime())
           break
       }
 
