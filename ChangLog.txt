@@ -1,3 +1,7 @@
+2016/12/30: v0.4
+	1.	Change flush frequency to 30s
+	2.	Change chart default data time range to 1 day
+	3.	Optimize server change. When the server has changed, flush the view at once
 2016/12/29: v0.2
 	1.	remove redis monitor supoort
 	2.	add debug mode
