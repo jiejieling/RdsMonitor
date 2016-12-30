@@ -18,7 +18,8 @@ var BaseWidget = Backbone.View.extend({
       var self = this
 
       $(document).on("ServerChange", function(e, server){      
-        self.server = server      
+        self.server = server
+        self.UpdateModel(true)
       })    
 
       this.timer = setInterval( function () { self.UpdateModel(true) }, this.updateFrequency )      
